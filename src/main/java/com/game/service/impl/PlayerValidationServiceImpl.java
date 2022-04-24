@@ -26,6 +26,8 @@ public class PlayerValidationServiceImpl implements PlayerValidationService {
     private static final Integer MIN_EXPERIENCE_VALUE = 0;
     private static final Integer MAX_EXPERIENCE_VALUE = 10_000_000;
 
+    private static final Integer MIN_PLAYER_ID = 1;
+
 
     @Override
     public void validate(PlayerCreateDTO player) throws ValidationException {
@@ -59,6 +61,14 @@ public class PlayerValidationServiceImpl implements PlayerValidationService {
         if (Objects.isNull(experience) || experience < MIN_EXPERIENCE_VALUE || experience > MAX_EXPERIENCE_VALUE) {
             log.warn("Invalid player's field. Experience {}.", experience);
             throw new ValidationException("Experience has invalid value");
+        }
+    }
+
+    @Override
+    public void validate(Long id) {
+        if (Objects.isNull(id) || id < MIN_PLAYER_ID) {
+            log.warn("Invalid player's id. Id {}.", id);
+            throw new ValidationException("Id has invalid value");
         }
     }
 }

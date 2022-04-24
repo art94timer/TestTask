@@ -7,4 +7,5 @@ public interface PlayerValidationService {
 
     void validate(PlayerCreateDTO person) throws ValidationException;
 
+    void validate(Long id);
 }

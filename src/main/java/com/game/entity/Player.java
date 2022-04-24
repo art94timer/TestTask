@@ -15,8 +15,10 @@ public class Player {
 
     private String title;
 
+    @Enumerated(EnumType.STRING)
     private Race race;
 
+    @Enumerated(EnumType.STRING)
     private Profession profession;
 
     @Temporal(TemporalType.DATE)

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class PlayerServiceImpl implements PlayerService {
@@ -21,7 +22,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player createPlayer(PlayerCreateDTO playerCreateDTO) {
+    public Player create(PlayerCreateDTO playerCreateDTO) {
         log.debug("Creating new person. Create person request {}.", playerCreateDTO);
         Integer experience = playerCreateDTO.getExperience();
         int currentLevel = computePersonCurrentLevel(experience);
@@ -42,11 +43,23 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Player savePlayer(Player player) {
+    public Player save(Player player) {
         log.debug("Saving person. Person {}.", player);
         Player saved = repository.save(player);
         log.trace("Successfully saved person. Person {}.", saved);
         return saved;
+    }
+
+    @Override
+    public void delete(Long id) {
+        log.debug("Deleting person. Id {}.", id);
+        repository.deleteById(id);
+    }
+
+    @Override
+    public Optional<Player> findById(Long id) {
+        log.debug("Searching person. Id {}.", id);
+        return repository.findById(id);
     }
 
     private int computePersonCurrentLevel(Integer experience) {
