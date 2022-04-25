@@ -57,10 +57,15 @@ public class PlayerController {
     }
 
     @GetMapping(value = "/rest/players")
-    public ResponseEntity<List<Player>> findAllBy(@RequestParam Map<String, String> params) {
+    public ResponseEntity<List<Player>> findAllByParams(@RequestParam Map<String, String> params) {
         List<Player> filteredByParamsPlayers = playerService.findAllBy(params);
         return ResponseEntity.ok(filteredByParamsPlayers);
     }
 
+    @GetMapping(value = "/rest/players/count")
+    public ResponseEntity<Integer> countAllByParams(@RequestParam Map<String, String> params) {
+        int count = playerService.countAllByParams(params);
+        return ResponseEntity.ok(count);
+    }
 
 }

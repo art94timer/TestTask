@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 public interface PlayerRepository extends PagingAndSortingRepository<Player, Long> {
 
     String SELECT_FROM_PLAYER = "SELECT * FROM player WHERE 1=1";
+    String SELECT_COUNT_FROM_PLAYER = "SELECT COUNT(*) FROM player WHERE 1=1";
+
     Integer DEFAULT_PAGE_NUMBER = 0;
     Integer DEFAULT_PAGE_SIZE = 3;
 

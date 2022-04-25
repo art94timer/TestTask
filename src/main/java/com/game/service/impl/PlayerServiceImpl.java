@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -83,6 +84,28 @@ public class PlayerServiceImpl implements PlayerService {
 
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(PlayerRepository.SELECT_FROM_PLAYER);
+        constructSqlConditions(params, sqlBuilder);
+
+        sqlBuilder.append(String.format(" ORDER BY %s", order.getFieldName()));
+
+        Query query = entityManager.createNativeQuery(sqlBuilder.toString(), Player.class)
+                .setFirstResult(pageSize * pageNumber)
+                .setMaxResults(pageSize);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public int countAllByParams(Map<String, String> params) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(PlayerRepository.SELECT_COUNT_FROM_PLAYER);
+        constructSqlConditions(params, sqlBuilder);
+        Query query = entityManager.createNativeQuery(sqlBuilder.toString());
+        BigInteger result = (BigInteger) query.getSingleResult();
+        return result.intValue();
+    }
+
+    private void constructSqlConditions(Map<String, String> params, StringBuilder sqlBuilder) {
         params.forEach((param, value) -> {
             if (param.startsWith("min")) {
                 String column = param.substring(3).toLowerCase(Locale.ROOT);
@@ -104,14 +127,6 @@ public class PlayerServiceImpl implements PlayerService {
                 sqlBuilder.append(String.format(" AND %s LIKE '%%%s%%'", param, value));
             }
         });
-
-        sqlBuilder.append(String.format(" ORDER BY %s", order.getFieldName()));
-
-        Query query = entityManager.createNativeQuery(sqlBuilder.toString(), Player.class)
-                .setFirstResult(pageSize * pageNumber)
-                .setMaxResults(pageSize);
-
-        return query.getResultList();
     }
 
     private int computePersonCurrentLevel(Integer experience) {

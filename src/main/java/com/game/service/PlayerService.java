@@ -18,4 +18,6 @@ public interface PlayerService {
     Optional<Player> findById(Long id);
 
     List<Player> findAllBy(Map<String, String> params);
+
+    int countAllByParams(Map<String, String> params);
 }
