@@ -1,21 +1,31 @@
 package com.game.service.impl;
 
+import com.game.controller.PlayerOrder;
 import com.game.controller.request.PlayerCreateDTO;
 import com.game.entity.Player;
 import com.game.repository.PlayerRepository;
 import com.game.service.PlayerService;
+import com.game.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Optional;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class PlayerServiceImpl implements PlayerService {
 
     private static final Logger log = LoggerFactory.getLogger(PlayerServiceImpl.class);
+
     private final PlayerRepository repository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
 
     public PlayerServiceImpl(PlayerRepository repository) {
         this.repository = repository;
@@ -60,6 +70,48 @@ public class PlayerServiceImpl implements PlayerService {
     public Optional<Player> findById(Long id) {
         log.debug("Searching person. Id {}.", id);
         return repository.findById(id);
+    }
+
+    @Override
+    public List<Player> findAllBy(Map<String, String> params) {
+        String pageNumberStr = params.remove("pageNumber");
+        String pageSizeStr = params.remove("pageSize");
+        String orderStr = params.remove("order");
+        int pageNumber = pageNumberStr == null ? PlayerRepository.DEFAULT_PAGE_NUMBER : Integer.parseInt(pageNumberStr);
+        int pageSize = pageSizeStr == null ? PlayerRepository.DEFAULT_PAGE_SIZE : Integer.parseInt(pageSizeStr);
+        PlayerOrder order = orderStr == null ? PlayerOrder.ID : PlayerOrder.valueOf(orderStr);
+
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(PlayerRepository.SELECT_FROM_PLAYER);
+        params.forEach((param, value) -> {
+            if (param.startsWith("min")) {
+                String column = param.substring(3).toLowerCase(Locale.ROOT);
+                sqlBuilder.append(String.format(" AND %s >= %s", column, value));
+            } else if (param.startsWith("max")) {
+                String column = param.substring(3).toLowerCase(Locale.ROOT);
+                sqlBuilder.append(String.format(" AND %s <= %s", column, value));
+            } else if (param.equals("after")) {
+                long milliseconds = Long.parseLong(value);
+                LocalDate after = DateUtils.toLocalDate(milliseconds);
+                sqlBuilder.append(String.format(" AND %s >= '%s'", "birthday", after.toString()));
+            } else if (param.equals("before")) {
+                long milliseconds = Long.parseLong(value);
+                LocalDate before = DateUtils.toLocalDate(milliseconds);
+                sqlBuilder.append(String.format(" AND %s <= '%s'", "birthday", before.toString()));
+            } else if (param.equals("banned") || param.equals("race") || param.equals("profession")) {
+                sqlBuilder.append(String.format(" AND %s = '%s'", param, value));
+            } else {
+                sqlBuilder.append(String.format(" AND %s LIKE '%%%s%%'", param, value));
+            }
+        });
+
+        sqlBuilder.append(String.format(" ORDER BY %s", order.getFieldName()));
+
+        Query query = entityManager.createNativeQuery(sqlBuilder.toString(), Player.class)
+                .setFirstResult(pageSize * pageNumber)
+                .setMaxResults(pageSize);
+
+        return query.getResultList();
     }
 
     private int computePersonCurrentLevel(Integer experience) {

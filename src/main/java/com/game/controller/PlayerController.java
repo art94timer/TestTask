@@ -7,6 +7,8 @@ import com.game.service.PlayerValidationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -54,6 +56,11 @@ public class PlayerController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping(value = "/rest/players")
+    public ResponseEntity<List<Player>> findAllBy(@RequestParam Map<String, String> params) {
+        List<Player> filteredByParamsPlayers = playerService.findAllBy(params);
+        return ResponseEntity.ok(filteredByParamsPlayers);
+    }
 
 
 }

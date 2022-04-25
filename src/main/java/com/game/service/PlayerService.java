@@ -3,6 +3,8 @@ package com.game.service;
 import com.game.controller.request.PlayerCreateDTO;
 import com.game.entity.Player;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface PlayerService {
@@ -14,4 +16,6 @@ public interface PlayerService {
     void delete(Long id);
 
     Optional<Player> findById(Long id);
+
+    List<Player> findAllBy(Map<String, String> params);
 }
