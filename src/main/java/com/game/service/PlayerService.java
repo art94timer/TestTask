@@ -1,6 +1,6 @@
 package com.game.service;
 
-import com.game.controller.request.PlayerCreateDTO;
+import com.game.controller.request.PlayerDTO;
 import com.game.entity.Player;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface PlayerService {
 
-    Player create(PlayerCreateDTO personDTO);
+    Player create(PlayerDTO player);
 
     Player save(Player player);
 
@@ -17,7 +17,9 @@ public interface PlayerService {
 
     Optional<Player> findById(Long id);
 
-    List<Player> findAllBy(Map<String, String> params);
+    List<Player> findAllByParams(Map<String, String> params);
 
     int countAllByParams(Map<String, String> params);
+
+    Optional<Player> update(Long id, PlayerDTO player);
 }

@@ -1,11 +1,13 @@
 package com.game.controller.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.game.entity.Profession;
 import com.game.entity.Race;
 
 import java.io.Serializable;
 
-public class PlayerCreateDTO implements Serializable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PlayerDTO implements Serializable {
 
     private String name;
 
@@ -17,10 +19,9 @@ public class PlayerCreateDTO implements Serializable {
 
     private Long birthday;
 
-    private boolean banned;
+    private Boolean banned;
 
     private Integer experience;
-
 
     public String getName() {
         return name;
@@ -62,11 +63,11 @@ public class PlayerCreateDTO implements Serializable {
         this.birthday = birthday;
     }
 
-    public boolean isBanned() {
+    public Boolean getBanned() {
         return banned;
     }
 
-    public void setBanned(boolean banned) {
+    public void setBanned(Boolean banned) {
         this.banned = banned;
     }
 

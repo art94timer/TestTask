@@ -1,6 +1,6 @@
 package com.game.controller;
 
-import com.game.controller.request.PlayerCreateDTO;
+import com.game.controller.request.PlayerDTO;
 import com.game.entity.Player;
 import com.game.service.PlayerService;
 import com.game.service.PlayerValidationService;
@@ -25,15 +25,15 @@ public class PlayerController {
     }
 
     @PostMapping(value = "/rest/players")
-    public Player createAndSavePlayer(@RequestBody PlayerCreateDTO personCreateRequest) {
-        validationService.validate(personCreateRequest);
+    public Player createAndSavePlayer(@RequestBody PlayerDTO personCreateRequest) {
+        validationService.validateCreateRequest(personCreateRequest);
         Player player = playerService.create(personCreateRequest);
         return playerService.save(player);
     }
 
     @DeleteMapping(value = "/rest/players/{id}")
     public ResponseEntity<?> deleteById(@PathVariable Long id) {
-        validationService.validate(id);
+        validationService.validateId(id);
         Optional<Player> optionalPlayer = playerService.findById(id);
         if (optionalPlayer.isPresent()) {
             Player player = optionalPlayer.get();
@@ -45,7 +45,7 @@ public class PlayerController {
 
     @GetMapping(value = "/rest/players/{id}")
     public ResponseEntity<Player> findById(@PathVariable Long id) {
-        validationService.validate(id);
+        validationService.validateId(id);
         Optional<Player> optionalPlayer = playerService.findById(id);
         if (optionalPlayer.isPresent()) {
             Player player = optionalPlayer.get();
@@ -58,7 +58,7 @@ public class PlayerController {
 
     @GetMapping(value = "/rest/players")
     public ResponseEntity<List<Player>> findAllByParams(@RequestParam Map<String, String> params) {
-        List<Player> filteredByParamsPlayers = playerService.findAllBy(params);
+        List<Player> filteredByParamsPlayers = playerService.findAllByParams(params);
         return ResponseEntity.ok(filteredByParamsPlayers);
     }
 
@@ -68,4 +68,12 @@ public class PlayerController {
         return ResponseEntity.ok(count);
     }
 
+    @PostMapping(value = "/rest/players/{id}")
+    public ResponseEntity<Player> updatePlayer(@PathVariable Long id,
+                                               @RequestBody PlayerDTO playerDTO) {
+        validationService.validateId(id);
+        validationService.validateUpdateRequest(playerDTO);
+        Optional<Player> player = playerService.update(id, playerDTO);
+        return player.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
